@@ -91,16 +91,15 @@
     <text x="450" y="15" class="section-label">PERFORMANCE METRICS</text>
     
     <g transform="translate(130, 35)">
-      <text x="0" y="20" class="stat-val">12</text>
+      <text x="0" y="20" class="stat-val">0</text>
       <text x="0" y="38" class="stat-lbl">STARS</text>
     </g>
     <g transform="translate(310, 35)">
-      <text x="0" y="20" class="stat-val">42</text>
+      >10<</text>
       <text x="0" y="38" class="stat-lbl">REPOS</text>
     </g>
     <g transform="translate(490, 35)">
-      <text x="0" y="20" class="stat-val">885</text>
-      <text x="0" y="38" class="stat-lbl">COMMITS</text>
+      <text x="0" y="20" class="stat-val>34<lass="stat-lbl">COMMITS</text>
     </g>
     <g transform="translate(670, 35)">
       <text x="0" y="20" class="stat-val">3,200</text>
