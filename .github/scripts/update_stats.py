@@ -6,136 +6,106 @@ USERNAME = "KeorapetseQ"
 TOKEN = os.getenv("METRICS_TOKEN")
 SVG_PATH = "assets/cosmic_dashboard.svg"
 
-# GraphQL Query to fetch real stats, top tech stack, and top pinned/recent repositories
-query = """
-query($username: String!) {
-  user(login: $username) {
-    repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: UPDATED_AT, direction: DESC}) {
-      totalCount
-      nodes {
-        name
-        description
-        stargazerCount
-        primaryLanguage {
-          name
-        }
-        languages(first: 3, orderBy: {field: SIZE, direction: DESC}) {
+def fetch_github_stats():
+    url = "https://api.github.com/graphql"
+    headers = {"Authorization": f"Bearer {TOKEN}"} if TOKEN else {}
+
+    query = """
+    query($user: String!) {
+      user(login: $user) {
+        repositories(first: 10, orderBy: {field: STARGAZERS, direction: DESC}, ownerAffiliations: OWNER) {
+          totalCount
           nodes {
             name
+            description
+            stargazerCount
+            languages(first: 3, orderBy: {field: SIZE, direction: DESC}) {
+              nodes { name }
+            }
+          }
+        }
+        contributionsCollection {
+          totalCommitContributions
+          restrictedContributionsCount
+          contributionCalendar {
+            totalContributions
           }
         }
       }
     }
-    contributionsCollection {
-      totalCommitContributions
-      restrictedContributionsCount
-      contributionCalendar {
-        totalContributions
-      }
-    }
-  }
-}
-"""
+    """
 
-def fetch_github_stats():
-    headers = {"Authorization": f"Bearer {TOKEN}"} if TOKEN else {}
-    response = requests.post(
-        "https://api.github.com/graphql",
-        json={"query": query, "variables": {"username": USERNAME}},
-        headers=headers
-    )
-    
+    response = requests.post(url, json={'query': query, 'variables': {'user': USERNAME}}, headers=headers)
     if response.status_code != 200:
-        raise Exception(f"Query failed with status {response.status_code}: {response.text}")
-        
-    res_json = response.json()
-    if "errors" in res_json:
-        raise Exception(f"GraphQL Errors: {res_json['errors']}")
+        raise Exception(f"Query failed with code {response.status_code}: {response.text}")
 
-    data = res_json["data"]["user"]
-    
-    repos_nodes = data["repositories"]["nodes"]
-    repos_count = data["repositories"]["totalCount"]
-    stars_count = sum(repo["stargazerCount"] for repo in repos_nodes)
-    commits_count = (
-        data["contributionsCollection"]["totalCommitContributions"] +
-        data["contributionsCollection"]["restrictedContributionsCount"]
-    )
-    contributions_count = data["contributionsCollection"]["contributionCalendar"]["totalContributions"]
+    data = response.json()['data']['user']
 
-    # Extract Top Tech Stack (Languages)
-    lang_counts = {}
-    for repo in repos_nodes:
-        for lang in repo["languages"]["nodes"]:
-            l_name = lang["name"]
-            lang_counts[l_name] = lang_counts.get(l_name, 0) + 1
-            
-    top_langs = sorted(lang_counts.keys(), key=lambda x: lang_counts[x], reverse=True)[:3]
-    while len(top_langs) < 3:
-        top_langs.append("Code")
+    total_stars = sum(repo['stargazerCount'] for repo in data['repositories']['nodes'])
+    total_repos = data['repositories']['totalCount']
+    total_commits = data['contributionsCollection']['totalCommitContributions']
+    total_contributions = data['contributionsCollection']['contributionCalendar']['totalContributions']
 
-    # Extract Top 3 Real Projects
-    top_projects = []
-    for repo in repos_nodes[:3]:
-        langs = [l["name"] for l in repo["languages"]["nodes"]]
-        top_projects.append({
-            "name": repo["name"].upper()[:20],
-            "stack": " • ".join(langs) if langs else "Software",
-            "desc": (repo["description"] or "Personal software project.")[:42]
+    top_repos = data['repositories']['nodes'][:3]
+    projects = []
+    for repo in top_repos:
+        langs = [l['name'] for l in repo['languages']['nodes']]
+        projects.append({
+            'name': repo['name'].upper(),
+            'stack': " • ".join(langs) if langs else "Code",
+            'desc': repo['description'] or "No description provided."
         })
 
     return {
-        "stars": stars_count,
-        "repos": repos_count,
-        "commits": commits_count,
-        "contributions": contributions_count,
-        "langs": top_langs,
-        "projects": top_projects
+        'stars': total_stars,
+        'repos': total_repos,
+        'commits': total_commits,
+        'contributions': total_contributions,
+        'langs': ["Python", "TS", "C++"],  # Default galaxy languages
+        'projects': projects
     }
 
 def update_svg(stats):
     with open(SVG_PATH, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 1. Update Metrics Numbers
+    # 1. Update Metrics
+    metrics_vals = [
+        str(stats['stars']),
+        str(stats['repos']),
+        str(stats['commits']),
+        f"{stats['contributions']:,}"
+    ]
+
+    def replace_metric(match):
+        if metrics_vals:
+            val = metrics_vals.pop(0)
+            return f'{match.group(1)}{val}{match.group(2)}'
+        return match.group(0)
+
     content = re.sub(
         r'(<text [^>]*class="stat-val"[^>]*>)[^<]*(</text>)',
-        lambda m, c=iter([stats['stars'], stats['repos'], stats['commits'], f"{stats['contributions']:,}"]): f"{m.group(1)}{next(c)}{m.group(2)}",
+        replace_metric,
         content
     )
 
-    # 2. Update Orbiting Stack Languages
-    lang_nodes = ["Python", "TS", "C++"]
-    for old_lang, new_lang in zip(lang_nodes, stats["langs"]):
-        display_lang = new_lang[:6]
-        content = re.sub(rf'>({old_lang})</text>', f'>{display_lang}</text>', content)
+    # 2. Update Default Template Card Placeholders with Real Repos
+    card_defaults = [
+        ("MED-AI CO-PILOT", "Python • TensorFlow • React", "Next-gen medical diagnostic assistant."),
+        ("QUANTUM BLOCKCHAIN", "Go • Rust • IPFS", "Secure decentralized ledger tech."),
+        ("GREEN IOT GRID", "Kubernetes • MQTT • Go", "Smart energy management grid.")
+    ]
 
-    # 3. Update Real Projects
-    projects = stats["projects"]
-    if len(projects) >= 3:
-        # Project 1
-        content = re.sub(r'MED-AI CO-PILOT', projects[0]['name'], content)
-        content = re.sub(r'Python • TensorFlow • React', projects[0]['stack'], content)
-        content = re.sub(r'Next-gen medical diagnostic assistant\.', projects[0]['desc'], content)
-
-        # Project 2
-        content = re.sub(r'QUANTUM BLOCKCHAIN', projects[1]['name'], content)
-        content = re.sub(r'Go • Rust • IPFS', projects[1]['stack'], content)
-        content = re.sub(r'Secure decentralized ledger tech\.', projects[1]['desc'], content)
-
-        # Project 3
-        content = re.sub(r'GREEN IOT GRID', projects[2]['name'], content)
-        content = re.sub(r'Kubernetes • MQTT • Go', projects[2]['stack'], content)
-        content = re.sub(r'Smart energy management grid\.', projects[2]['desc'], content)
+    for i, p in enumerate(stats["projects"]):
+        if i < len(card_defaults):
+            def_title, def_stack, def_desc = card_defaults[i]
+            content = content.replace(def_title, p['name'])
+            content = content.replace(def_stack, p['stack'])
+            content = content.replace(def_desc, p['desc'])
 
     with open(SVG_PATH, "w", encoding="utf-8") as f:
         f.write(content)
 
 if __name__ == "__main__":
-    try:
-        stats = fetch_github_stats()
-        print(f"Fetched Real Data: {stats}")
-        update_svg(stats)
-        print("Successfully updated SVG with real GitHub data!")
-    except Exception as e:
-        print(f"Error: {e}")
+    stats = fetch_github_stats()
+    update_svg(stats)
