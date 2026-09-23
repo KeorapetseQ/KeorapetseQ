@@ -1,3 +1,4 @@
+import html
 import os
 import re
 import requests
@@ -50,10 +51,16 @@ def fetch_github_stats():
     projects = []
     for repo in top_repos:
         langs = [l['name'] for l in repo['languages']['nodes']]
+        
+        # HTML/XML escape special characters to avoid breaking SVG syntax
+        proj_name = html.escape(repo['name'].upper())
+        proj_stack = html.escape(" • ".join(langs) if langs else "Code")
+        proj_desc = html.escape(repo['description'] or "No description provided.")
+
         projects.append({
-            'name': repo['name'].upper(),
-            'stack': " • ".join(langs) if langs else "Code",
-            'desc': repo['description'] or "No description provided."
+            'name': proj_name,
+            'stack': proj_stack,
+            'desc': proj_desc
         })
 
     return {
@@ -61,7 +68,7 @@ def fetch_github_stats():
         'repos': total_repos,
         'commits': total_commits,
         'contributions': total_contributions,
-        'langs': ["Python", "TS", "C++"],  # Default galaxy languages
+        'langs': ["Python", "TS", "C++"],
         'projects': projects
     }
 
@@ -69,7 +76,7 @@ def update_svg(stats):
     with open(SVG_PATH, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 1. Update Metrics
+    # 1. Update Metrics Numbers
     metrics_vals = [
         str(stats['stars']),
         str(stats['repos']),
@@ -89,7 +96,7 @@ def update_svg(stats):
         content
     )
 
-    # 2. Update Default Template Card Placeholders with Real Repos
+    # 2. Update Default Template Placeholders
     card_defaults = [
         ("MED-AI CO-PILOT", "Python • TensorFlow • React", "Next-gen medical diagnostic assistant."),
         ("QUANTUM BLOCKCHAIN", "Go • Rust • IPFS", "Secure decentralized ledger tech."),
