@@ -48,7 +48,7 @@
   <text x="500" y="370" font-size="12" fill="#7000ff" font-weight="800" text-anchor="middle" letter-spacing="3">PERFORMANCE METRICS</text>
   <g transform="translate(0, 390)">
     <g transform="translate(200, 0)">
-      <text x="0" y="35" class="stat-val">0</text>
+      <text x="0" y="35" class="stat-val">2</text>
       <text x="0" y="55" class="stat-lbl">STARS</text>
     </g>
     <g transform="translate(400, 0)">
