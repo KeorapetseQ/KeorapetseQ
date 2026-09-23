@@ -52,15 +52,15 @@
       <text x="0" y="55" class="stat-lbl">STARS</text>
     </g>
     <g transform="translate(400, 0)">
-      <text x="0" y="35" class="stat-val">0</text>
+      <text x="0" y="35" class="stat-val">10</text>
       <text x="0" y="55" class="stat-lbl">REPOS</text>
     </g>
     <g transform="translate(600, 0)">
-      <text x="0" y="35" class="stat-val">0</text>
+      <text x="0" y="35" class="stat-val">49</text>
       <text x="0" y="55" class="stat-lbl">COMMITS</text>
     </g>
     <g transform="translate(800, 0)">
-      <text x="0" y="35" class="stat-val">0</text>
+      <text x="0" y="35" class="stat-val">59</text>
       <text x="0" y="55" class="stat-lbl">CONTRIBUTIONS</text>
     </g>
   </g>
@@ -68,22 +68,22 @@
   <!-- FEATURED PROJECTS -->
   <g transform="translate(75, 480)">
     <rect class="card" width="260" height="130" x="0" y="0"/>
-    <text x="20" y="35" class="card-title">MED-AI CO-PILOT</text>
-    <text x="20" y="58" class="card-stack">Python • TensorFlow • React</text>
-    <text x="20" y="82" class="card-desc">Next-gen medical diagnostic assistant.</text>
+    <text x="20" y="35" class="card-title">KEORAPETSEQ</text>
+    <text x="20" y="58" class="card-stack">Code</text>
+    <text x="20" y="82" class="card-desc">No description provided.</text>
   </g>
 
   <g transform="translate(370, 480)">
     <rect class="card" width="260" height="130" x="0" y="0"/>
-    <text x="20" y="35" class="card-title">QUANTUM BLOCKCHAIN</text>
-    <text x="20" y="58" class="card-stack">Go • Rust • IPFS</text>
-    <text x="20" y="82" class="card-desc">Secure decentralized ledger tech.</text>
+    <text x="20" y="35" class="card-title">INMODE</text>
+    <text x="20" y="58" class="card-stack">TypeScript • PLpgSQL • CSS</text>
+    <text x="20" y="82" class="card-desc">No description provided.</text>
   </g>
 
   <g transform="translate(665, 480)">
     <rect class="card" width="260" height="130" x="0" y="0"/>
-    <text x="20" y="35" class="card-title">GREEN IOT GRID</text>
-    <text x="20" y="58" class="card-stack">Kubernetes • MQTT • Go</text>
-    <text x="20" y="82" class="card-desc">Smart energy management grid.</text>
+    <text x="20" y="35" class="card-title">MY-PORTFOLIO</text>
+    <text x="20" y="58" class="card-stack">CSS • JavaScript • HTML</text>
+    <text x="20" y="82" class="card-desc">No description provided.</text>
   </g>
 </svg>
