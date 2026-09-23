@@ -14,7 +14,7 @@ def fetch_github_stats():
     query = """
     query($user: String!) {
       user(login: $user) {
-        repositories(first: 10, orderBy: {field: STARGAZERS, direction: DESC}, ownerAffiliations: OWNER) {
+        repositories(first: 10, orderBy: {field: UPDATED_AT, direction: DESC}, ownerAffiliations: OWNER, isFork: false) {
           totalCount
           nodes {
             name
@@ -52,10 +52,9 @@ def fetch_github_stats():
     for repo in top_repos:
         langs = [l['name'] for l in repo['languages']['nodes']]
         
-        # HTML/XML escape special characters to avoid breaking SVG syntax
-        proj_name = html.escape(repo['name'].upper())
+        proj_name = html.escape(repo['name'].upper()[:22])
         proj_stack = html.escape(" • ".join(langs) if langs else "Code")
-        proj_desc = html.escape(repo['description'] or "No description provided.")
+        proj_desc = html.escape((repo['description'] or "Personal repository project.")[:42])
 
         projects.append({
             'name': proj_name,
@@ -68,7 +67,6 @@ def fetch_github_stats():
         'repos': total_repos,
         'commits': total_commits,
         'contributions': total_contributions,
-        'langs': ["Python", "TS", "C++"],
         'projects': projects
     }
 
@@ -76,7 +74,7 @@ def update_svg(stats):
     with open(SVG_PATH, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 1. Update Metrics Numbers
+    # 1. Update Stats
     metrics_vals = [
         str(stats['stars']),
         str(stats['repos']),
@@ -96,7 +94,7 @@ def update_svg(stats):
         content
     )
 
-    # 2. Update Default Template Placeholders
+    # 2. Update Project Cards
     card_defaults = [
         ("MED-AI CO-PILOT", "Python • TensorFlow • React", "Next-gen medical diagnostic assistant."),
         ("QUANTUM BLOCKCHAIN", "Go • Rust • IPFS", "Secure decentralized ledger tech."),
