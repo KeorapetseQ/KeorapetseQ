@@ -1,5 +1,5 @@
 
 
 
-<img src="./assets/cosmic_dashboard.svg?v=1" alt="Tlhohonolofatso Qoane Cosmic Profile Dashboard" width="100%">
+<img src="./assets/cosmic_dashboard.svg?v=1" alt="Tlhohonolofatso Qoane cosmic Profile Dashboard" width="100%">
 
