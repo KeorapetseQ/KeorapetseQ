@@ -56,11 +56,11 @@
       <text x="0" y="55" class="stat-lbl">REPOS</text>
     </g>
     <g transform="translate(600, 0)">
-      <text x="0" y="35" class="stat-val">49</text>
+      <text x="0" y="35" class="stat-val">50</text>
       <text x="0" y="55" class="stat-lbl">COMMITS</text>
     </g>
     <g transform="translate(800, 0)">
-      <text x="0" y="35" class="stat-val">59</text>
+      <text x="0" y="35" class="stat-val">60</text>
       <text x="0" y="55" class="stat-lbl">CONTRIBUTIONS</text>
     </g>
   </g>
